@@ -5,7 +5,7 @@ import (
 	"log"
 	"google.golang.org/grpc"
 
-	pb "sprbus/pubservice"
+	pb "github.com/spr-networks/sprbus/pubservice"
 )
 
 //TODO change this

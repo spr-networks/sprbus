@@ -11,7 +11,7 @@ import (
 	"github.com/moby/moby/pkg/pubsub"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	pb "sprbus/pubservice"
+	pb "github.com/spr-networks/sprbus/pubservice"
 )
 
 //var ServerEventSock = "/tmp/grpc.sock"
