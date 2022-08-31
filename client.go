@@ -9,7 +9,7 @@ import (
 )
 
 //TODO change this
-var ServerEventSock = "/state/plugins/packet_logs/server.sock"
+var ServerEventSock = "/state/api/eventbus.sock"
 
 // Client - object capable of subscribing to a remote event bus
 type Client struct {
