@@ -14,6 +14,7 @@ import (
 	pb "github.com/spr-networks/sprbus/pubservice"
 )
 
+//defined in client.go
 //var ServerEventSock = "/tmp/grpc.sock"
 
 type Server struct {
@@ -91,7 +92,7 @@ func NewServer(socketPath string) (*Server, error) {
 	//  Register pubsub
 	pb.RegisterPubsubServiceServer(server.server, NewPubsubService())
 
-	fmt.Println("starting grpc server...")
+	//fmt.Println("starting grpc server...")
 
 	if err := server.server.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)

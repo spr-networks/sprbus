@@ -8,7 +8,6 @@ import (
 	pb "github.com/spr-networks/sprbus/pubservice"
 )
 
-//TODO change this
 var ServerEventSock = "/state/api/eventbus.sock"
 
 // Client - object capable of subscribing to a remote event bus
