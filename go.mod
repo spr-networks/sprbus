@@ -1,11 +1,10 @@
-module github.com/spr-networks/sprbus v0.0.1
+module github.com/spr-networks/sprbus
 
 go 1.17
 
 require (
 	github.com/golang/protobuf v1.5.2
 	github.com/moby/moby v23.0.1+incompatible
-	github.com/spr-networks/sprbus v0.0.0-20220831120422-b5a9ed261380
 	google.golang.org/grpc v1.53.0
 )
 
