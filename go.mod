@@ -1,4 +1,4 @@
-module github.com/spr-networks/sprbus/v0.0.1
+module github.com/spr-networks/sprbus v0.0.1
 
 go 1.17
 
