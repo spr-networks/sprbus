@@ -2,7 +2,6 @@ package sprbus
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net"
 	"os"
