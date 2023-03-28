@@ -1,6 +1,10 @@
 # sprbus
 
+This is https://github.com/moby/pubsub
+with support for unix sockets and grpc
+
 ## update proto
+
 ```sh
 cd pubservice
 protoc -I/usr/local/include -I. \
@@ -115,4 +119,3 @@ func main() {
 # TODO
 
 change ServerEventSock location default value
-
