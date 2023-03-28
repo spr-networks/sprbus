@@ -2,23 +2,23 @@ package sprbus
 
 import (
 	"context"
+	"github.com/moby/moby/pkg/pubsub"
+	pb "github.com/spr-networks/sprbus/pubservice"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 	"log"
 	"net"
 	"os"
 	"strings"
 	"time"
-	"github.com/moby/moby/pkg/pubsub"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
-	pb "github.com/spr-networks/sprbus/pubservice"
 )
 
 //defined in client.go
 //var ServerEventSock = "/tmp/grpc.sock"
 
 type Server struct {
-        path     string
-        server   *grpc.Server
+	path   string
+	server *grpc.Server
 }
 
 type PubsubService struct {
@@ -43,8 +43,29 @@ func (p *PubsubService) SubscribeTopic(arg *pb.String, stream pb.PubsubService_S
 	})
 
 	for v := range ch {
-		topic := arg.GetTopic()
-		value := strings.TrimPrefix(v.(string), topic+":")
+		// get start of json message. object, array, string
+		index := strings.Index(v.(string), "{")
+		
+		if index < 0 {
+			index = strings.Index(v.(string), "[")
+		}
+
+		if index < 0 {
+			index = strings.Index(v.(string), "\"")
+		}
+
+		var topic string
+		var value string
+
+		// if not json object, just index at whatever topic is subscribed to
+		if index <= 0 {
+			topic = arg.GetTopic()
+			value = strings.TrimPrefix(v.(string), topic+":")
+		} else {
+			topic = v.(string)[:index-1]
+			value = v.(string)[index:]
+		}
+
 		if err := stream.Send(&pb.String{Topic: topic, Value: value}); nil != err {
 			return err
 		}
@@ -85,10 +106,10 @@ func NewServer(socketPath string) (*Server, error) {
 	server.path = socketPath
 	server.server = grpc.NewServer()
 
-	//  register  grpcurl  The required  reflection  service 
+	// register grpcurl The required reflection service
 	reflection.Register(server.server)
 
-	//  Register pubsub
+	// Register pubsub
 	pb.RegisterPubsubServiceServer(server.server, NewPubsubService())
 
 	//fmt.Println("starting grpc server...")
