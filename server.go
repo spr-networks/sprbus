@@ -89,7 +89,6 @@ func NewPubsubService() *PubsubService {
 }
 
 func NewServer(socketPath string) (*Server, error) {
-
 	if socketPath == "" {
 		socketPath = ServerEventSock
 	}
