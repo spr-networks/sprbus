@@ -17,6 +17,8 @@ protoc -I/usr/local/include -I. \
 
 # Usage
 
+see example/main.go
+
 ```go
 package main
 
