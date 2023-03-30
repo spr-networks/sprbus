@@ -9,22 +9,14 @@ import (
 	"time"
 )
 
-var sprbusServer *Server
-
 func run_sprbus_server(socket string) {
-	//fmt.Printf("test: %v\n", sprbusServer)
-	if (sprbusServer != nil) {
-		fmt.Println("got server:", sprbusServer)
-		return
-	}
-
-	sprbusServer, err := NewServer(socket)
+	server, err := NewServer(socket)
 	if err != nil {
 		log.Fatal(err)
 	}
 	// does not return
 
-	fmt.Println("server:", sprbusServer)
+	fmt.Println("server:", server)
 }
 
 func TestConnect(t *testing.T) {
@@ -40,8 +32,6 @@ func TestConnect(t *testing.T) {
 	if err != nil {
 		t.Fatalf("newClient error: %v", err)
 	}
-
-	fmt.Println("cool")
 }
 
 func TestPubSub(t *testing.T) {
