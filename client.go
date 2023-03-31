@@ -17,6 +17,20 @@ type Client struct {
 	service pb.PubsubServiceClient
 }
 
+// sprbus.Publish() using default socket
+func Publish(topic string, value string) (error) {
+    client, err := NewClient(ServerEventSock)
+    defer client.Close()
+
+    if err != nil {
+        return err
+    }
+
+    client.Publish(topic, value)
+
+    return nil
+}
+
 func NewClient(socketPath string) (*Client, error) {
 	if socketPath == "" {
 		socketPath = ServerEventSock
