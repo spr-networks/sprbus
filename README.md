@@ -3,6 +3,17 @@
 This is https://github.com/moby/pubsub
 with support for unix sockets and grpc
 
+# TODO
+
+use this i go.mod:
+
+```
+replace github.com/spr-networks/super/pkg/sprbus v0.0.1 => ../../pkg/sprbus
+```
+
+will have to solve build in docker, copy / link libs
+but this makes local dev easier
+
 ## update proto
 
 ```sh

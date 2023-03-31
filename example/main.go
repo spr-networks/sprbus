@@ -12,20 +12,10 @@ import (
 var client *sprbus.Client
 var socket = "/tmp/test.sock"
 
-func spr_cli() {
-
+func do_subscribe(client *sprbus.Client) {
 	time.Sleep(time.Second / 4)
 
-	client, err := sprbus.NewClient(socket)
-	defer client.Close()
-
-	if err != nil {
-		log.Fatal("err", err)
-	}
-
 	var wg sync.WaitGroup
-
-	fmt.Println("got client:", client)
 
 	stream, err := client.SubscribeTopic("spr:test")
 	if nil != err {
@@ -33,7 +23,6 @@ func spr_cli() {
 	}
 
 	go func() {
-		fmt.Println("recv")
 		wg.Add(1)
 		for {
 			reply, err := stream.Recv()
@@ -42,25 +31,21 @@ func spr_cli() {
 			}
 
 			if nil != err {
-				//log.Fatal("ERRRRRR ", err) // Cancelled desc
 				return
 			}
 
+			topic := reply.GetTopic()
 			value := reply.GetValue()
 
-			fmt.Printf("sub:reply: %v\n", reply)
-			fmt.Println("sub:value:", value)
-			//wg.Done()
-			//return
+			fmt.Printf("topic=%v value=%v\n", topic, value)
 		}
 	}()
 
-	for i := 1; i < 2; i++ {
+}
 
-		time.Sleep(time.Second / 4)
-
-		fmt.Println("pub")
-		_, err = client.Publish("spr:test", "samplemsg")
+func do_publish(client *sprbus.Client) {
+	for i := 0; i < 5; i++ {
+		_, err := client.Publish("spr:test", "{\"data\": \"test\"}")
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -71,33 +56,37 @@ func spr_cli() {
 		}
 
 	}
-
-	//wg.Wait()
-
-	fmt.Println("done")
-
 }
 
 func spr_server() {
-
 	fmt.Println("server listening...")
 
 	server, err := sprbus.NewServer(socket)
 	if err != nil {
 		log.Fatal(err)
 	}
-	// does not return
 
+	// does not return
 	fmt.Println("server:", server)
 }
 
 func main() {
-	fmt.Println("main")
-
 	go spr_server()
-	spr_cli()
 
-	/*for i := 1; i < 10; i++ {
-		time.Sleep(time.Second)
-	}*/
+	time.Sleep(time.Second / 4)
+
+	client, err := sprbus.NewClient(socket)
+	defer client.Close()
+
+	if err != nil {
+		log.Fatal("err", err)
+	}
+
+	fmt.Println("client:", client)
+
+	do_subscribe(client)
+
+	do_publish(client)
+
+	fmt.Println("done")
 }
