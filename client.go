@@ -2,8 +2,8 @@ package sprbus
 
 import (
 	"context"
-	"log"
 	"google.golang.org/grpc"
+	"log"
 
 	pb "github.com/spr-networks/sprbus/pubservice"
 )
@@ -12,9 +12,9 @@ var ServerEventSock = "/state/api/eventbus.sock"
 
 // Client - object capable of subscribing to a remote event bus
 type Client struct {
-        path     string
-        conn     *grpc.ClientConn
-        service  pb.PubsubServiceClient
+	path    string
+	conn    *grpc.ClientConn
+	service pb.PubsubServiceClient
 }
 
 func NewClient(socketPath string) (*Client, error) {
@@ -29,8 +29,8 @@ func NewClient(socketPath string) (*Client, error) {
 	}
 	//defer conn.Close()
 
-        client := new(Client)
-        client.path = socketPath
+	client := new(Client)
+	client.path = socketPath
 	client.conn = conn
 	client.service = pb.NewPubsubServiceClient(conn)
 
