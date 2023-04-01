@@ -10,7 +10,8 @@ import (
 )
 
 var client *sprbus.Client
-var socket = "/tmp/test.sock"
+//var socket = "/tmp/test.sock"
+var socket = "/state/api/eventbus.sock"
 
 func do_subscribe(client *sprbus.Client) {
 	time.Sleep(time.Second / 4)
@@ -45,16 +46,19 @@ func do_subscribe(client *sprbus.Client) {
 
 func do_publish(client *sprbus.Client) {
 	for i := 0; i < 5; i++ {
-		_, err := client.Publish("spr:test", "{\"data\": \"test\"}")
+		/*_, err := client.Publish("spr:test", "{\"data\": \"test\"}")
 		if err != nil {
 			log.Fatal(err)
+		}*/
+
+		type testS struct {
+			Title string
+			Body string
 		}
 
-		_, err = client.Publish("rpc:test", "samplemsg")
-		if err != nil {
-			log.Fatal(err)
-		}
-
+		sprbus.Publish("spr:test:struct", testS{Title: "tttt1111", Body: "datahere"})
+		sprbus.Publish("spr:test:string", "s1ACID")
+		sprbus.Publish("spr:test:array", []int{11,23})
 	}
 }
 

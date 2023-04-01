@@ -2,9 +2,9 @@ package sprbus
 
 import (
 	"context"
+	"encoding/json"
 	"google.golang.org/grpc"
 	"log"
-
 	pb "github.com/spr-networks/sprbus/pubservice"
 )
 
@@ -18,17 +18,32 @@ type Client struct {
 }
 
 // sprbus.Publish() using default socket
-func Publish(topic string, value string) (error) {
+func PublishString(topic string, value string) (*pb.String, error) {
     client, err := NewClient(ServerEventSock)
     defer client.Close()
 
     if err != nil {
-        return err
+        return nil, err
     }
 
-    client.Publish(topic, value)
+    return client.Publish(topic, value)
+}
 
-    return nil
+// Publish, make sure bytes are json
+func Publish(topic string, bytes interface{}) (*pb.String, error) {
+	var value []byte
+	var err error
+
+	/*if reflect.TypeOf(bytes).String() == "string" {
+		value = []byte(bytes.(string))
+	}*/
+	value, err = json.Marshal(bytes)
+	
+	if err != nil {
+			return nil, err
+	}
+
+	return PublishString(topic, string(value))
 }
 
 func NewClient(socketPath string) (*Client, error) {
