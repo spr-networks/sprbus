@@ -2,18 +2,19 @@ package main
 
 import (
 	"fmt"
+	"github.com/spr-networks/sprbus"
 	"io"
 	"log"
 	"sync"
 	"time"
-	"github.com/spr-networks/sprbus"
 )
 
 var client *sprbus.Client
-//var socket = "/tmp/test.sock"
+
+// var socket = "/tmp/test.sock"
 var socket = "/state/api/eventbus.sock"
 
-func do_subscribe(client *sprbus.Client) {
+func custom_subscribe(client *sprbus.Client) {
 	time.Sleep(time.Second / 4)
 
 	var wg sync.WaitGroup
@@ -44,25 +45,16 @@ func do_subscribe(client *sprbus.Client) {
 
 }
 
-func do_publish(client *sprbus.Client) {
+func custom_publish(client *sprbus.Client) {
 	for i := 0; i < 5; i++ {
-		/*_, err := client.Publish("spr:test", "{\"data\": \"test\"}")
+		_, err := client.Publish("spr:test", "{\"data\": \"test\"}")
 		if err != nil {
 			log.Fatal(err)
-		}*/
-
-		type testS struct {
-			Title string
-			Body string
 		}
-
-		sprbus.Publish("spr:test:struct", testS{Title: "tttt1111", Body: "datahere"})
-		sprbus.Publish("spr:test:string", "s1ACID")
-		sprbus.Publish("spr:test:array", []int{11,23})
 	}
 }
 
-func spr_server() {
+func custom_server() {
 	fmt.Println("server listening...")
 
 	server, err := sprbus.NewServer(socket)
@@ -74,8 +66,27 @@ func spr_server() {
 	fmt.Println("server:", server)
 }
 
+func spr_publish() {
+	for i := 0; i < 5; i++ {
+		type testS struct {
+			Title string
+			Body  string
+		}
+
+		sprbus.Publish("spr:test:struct", testS{Title: "tttt1111", Body: "datahere"})
+		sprbus.Publish("spr:test:string", "s1ACID")
+		sprbus.Publish("spr:test:array", []int{11, 23})
+	}
+}
+
+func spr_event() {
+	sprbus.HandleEvent("spr", func(topic string, json string) {
+		fmt.Printf("[sprbus] %v %v\n", topic, json)
+	})
+}
+
 func main() {
-	go spr_server()
+	go custom_server()
 
 	time.Sleep(time.Second / 4)
 
@@ -88,9 +99,11 @@ func main() {
 
 	fmt.Println("client:", client)
 
-	do_subscribe(client)
+	//custom_subscribe(client)
+	//custom_publish(client)
 
-	do_publish(client)
+	go spr_event()
+	spr_publish()
 
 	fmt.Println("done")
 }

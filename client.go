@@ -3,9 +3,10 @@ package sprbus
 import (
 	"context"
 	"encoding/json"
-	"google.golang.org/grpc"
-	"log"
 	pb "github.com/spr-networks/sprbus/pubservice"
+	"google.golang.org/grpc"
+	"io"
+	"log"
 )
 
 var ServerEventSock = "/state/api/eventbus.sock"
@@ -17,33 +18,58 @@ type Client struct {
 	service pb.PubsubServiceClient
 }
 
-// sprbus.Publish() using default socket
+// sprbus.PublishString() using default socket
 func PublishString(topic string, value string) (*pb.String, error) {
-    client, err := NewClient(ServerEventSock)
-    defer client.Close()
+	client, err := NewClient(ServerEventSock)
+	defer client.Close()
 
-    if err != nil {
-        return nil, err
-    }
+	if err != nil {
+		return nil, err
+	}
 
-    return client.Publish(topic, value)
+	return client.Publish(topic, value)
 }
 
-// Publish, make sure bytes are json
+// sprbus.Publish() using default socket, make sure bytes are json
 func Publish(topic string, bytes interface{}) (*pb.String, error) {
-	var value []byte
-	var err error
+	value, err := json.Marshal(bytes)
 
-	/*if reflect.TypeOf(bytes).String() == "string" {
-		value = []byte(bytes.(string))
-	}*/
-	value, err = json.Marshal(bytes)
-	
 	if err != nil {
-			return nil, err
+		return nil, err
 	}
 
 	return PublishString(topic, string(value))
+}
+
+func HandleEvent(topic string, callback func(string, string)) {
+	client, err := NewClient(ServerEventSock)
+	defer client.Close()
+
+	if nil != err {
+		log.Fatal(err)
+	}
+
+	stream, err := client.SubscribeTopic(topic)
+	if nil != err {
+		log.Fatal(err)
+	}
+
+	for {
+		reply, err := stream.Recv()
+		if io.EOF == err {
+			break
+		}
+
+		if nil != err {
+			// Cancelled desc
+			return
+		}
+
+		topic := reply.GetTopic()
+		json := reply.GetValue()
+
+		callback(topic, json)
+	}
 }
 
 func NewClient(socketPath string) (*Client, error) {

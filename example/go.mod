@@ -2,9 +2,9 @@ module example
 
 go 1.20
 
-replace github.com/spr-networks/sprbus v0.1.1 => ../
+replace github.com/spr-networks/sprbus v0.1.3 => ../
 
-require github.com/spr-networks/sprbus v0.1.1
+require github.com/spr-networks/sprbus v0.1.3
 
 require (
 	github.com/golang/protobuf v1.5.2 // indirect
