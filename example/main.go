@@ -1,10 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"github.com/spr-networks/sprbus"
-	"io"
+	//"github.com/spr-networks/sprbus/log"
+	"github.com/sirupsen/logrus"
 	"log"
+	"fmt"
+	"io"
 	"sync"
 	"time"
 )
@@ -19,7 +21,7 @@ func custom_subscribe(client *sprbus.Client) {
 
 	var wg sync.WaitGroup
 
-	stream, err := client.SubscribeTopic("spr:test")
+	stream, err := client.SubscribeTopic("spr")
 	if nil != err {
 		log.Fatal(err)
 	}
@@ -55,7 +57,7 @@ func custom_publish(client *sprbus.Client) {
 }
 
 func custom_server() {
-	fmt.Println("server listening...")
+	//log.Println("server listening...")
 
 	server, err := sprbus.NewServer(socket)
 	if err != nil {
@@ -63,7 +65,7 @@ func custom_server() {
 	}
 
 	// does not return
-	fmt.Println("server:", server)
+	log.Println("server:", server)
 }
 
 func spr_publish() {
@@ -80,16 +82,31 @@ func spr_publish() {
 }
 
 func spr_event() {
-	sprbus.HandleEvent("spr", func(topic string, json string) {
+	sprbus.HandleEvent("", func(topic string, json string) {
 		fmt.Printf("[sprbus] %v %v\n", topic, json)
 	})
 }
 
+func spr_log() {
+	var log = sprbus.NewLog("spr:log")
+	// can modify log
+	log.SetLevel(logrus.DebugLevel)
+	/*log.SetOutput(os.Stdout)
+	log.SetReportCaller(false)
+	log.SetFormatter(&logrus.TextFormatter{FullTimestamp: true})*/
+
+	log.Warnf("this is a warning: %v", 1234)
+	log.Println("connected to", socket)
+	log.Debugf("debug: %v", 1234)
+}
+
 func main() {
+		
 	go custom_server()
-
-	time.Sleep(time.Second / 4)
-
+	time.Sleep(time.Second/2)
+	go spr_event()
+	time.Sleep(time.Second/2)
+	
 	client, err := sprbus.NewClient(socket)
 	defer client.Close()
 
@@ -97,13 +114,11 @@ func main() {
 		log.Fatal("err", err)
 	}
 
-	fmt.Println("client:", client)
-
 	//custom_subscribe(client)
 	//custom_publish(client)
-
-	go spr_event()
 	spr_publish()
 
-	fmt.Println("done")
+	spr_log()
+
+	time.Sleep(time.Second*5)
 }
