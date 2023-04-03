@@ -42,6 +42,45 @@ protoc --version
 
 see example/main.go
 
+## command line tool examples
+
+see cmd/main.go
+
+**www logs**
+```sh
+go run main.go -t www
+```
+
+**device and wifi events**
+```sh
+go run main.go -t device,wifi
+```
+
+**network traffic**
+```sh
+go run main.go -t nft
+```
+
+**network traffic in json, no timeout and pipe to jq**
+```sh
+go run main.go -t nft -j -t 0 | jq .
+```
+
+# Example code
+
+using default sprbus:
+```golang
+//publish
+sprbus.Publish("wifi:station:event", "{\"json\": \"data\"}")
+
+//subscribe
+go sprbus.HandleEvent("wifi", func (topic string, json string) {
+    fmt.Println("wifi event", topic, json)
+})
+```
+
+using a custom unix socket server and client:
+
 ```go
 package main
 
