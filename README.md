@@ -63,7 +63,7 @@ go run main.go -t nft
 
 **network traffic in json, no timeout and pipe to jq**
 ```sh
-go run main.go -t nft -j -t 0 | jq .
+go run main.go -t nft -j --timeout 0 | jq .
 ```
 
 # Example code
