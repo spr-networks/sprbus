@@ -179,7 +179,3 @@ func main() {
 
 }
 ```
-
-# TODO
-
-change ServerEventSock location default value
