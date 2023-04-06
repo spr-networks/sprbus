@@ -79,10 +79,8 @@ func NewClient(socketPath string) (*Client, error) {
 
 	conn, err := grpc.Dial("unix:///"+socketPath, grpc.WithInsecure())
 	if err != nil {
-		log.Fatal(err)
 		return nil, err
 	}
-	//defer conn.Close()
 
 	client := new(Client)
 	client.path = socketPath
