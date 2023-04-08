@@ -6,7 +6,6 @@ import (
 	pb "github.com/spr-networks/sprbus/pubservice"
 	"google.golang.org/grpc"
 	"io"
-	"log"
 )
 
 var ServerEventSock = "/state/api/eventbus.sock"
@@ -41,17 +40,17 @@ func Publish(topic string, bytes interface{}) (*pb.String, error) {
 	return PublishString(topic, string(value))
 }
 
-func HandleEvent(topic string, callback func(string, string)) {
+func HandleEvent(topic string, callback func(string, string)) error {
 	client, err := NewClient(ServerEventSock)
 	defer client.Close()
 
 	if nil != err {
-		log.Fatal(err)
+		return err
 	}
 
 	stream, err := client.SubscribeTopic(topic)
 	if nil != err {
-		log.Fatal(err)
+		return err
 	}
 
 	for {
@@ -62,7 +61,7 @@ func HandleEvent(topic string, callback func(string, string)) {
 
 		if nil != err {
 			// Cancelled desc
-			return
+			return nil
 		}
 
 		topic := reply.GetTopic()
@@ -74,7 +73,10 @@ func HandleEvent(topic string, callback func(string, string)) {
 		}
 
 		callback(topic, json)
+
 	}
+
+	return nil
 }
 
 func NewClient(socketPath string) (*Client, error) {
