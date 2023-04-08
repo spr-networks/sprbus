@@ -68,6 +68,11 @@ func HandleEvent(topic string, callback func(string, string)) {
 		topic := reply.GetTopic()
 		json := reply.GetValue()
 
+		if topic == "" {
+			//extract topic for wildcard
+			topic, json = extractTopicAndValueString(json)
+		}
+
 		callback(topic, json)
 	}
 }

@@ -40,7 +40,7 @@ func TestPubSub(t *testing.T) {
 
 	// lazy way to wait for server to be up
 	time.Sleep(time.Second / 2)
-	
+
 	// client
 	var client *Client
 	client, err := NewClient(socket)
@@ -82,14 +82,14 @@ func TestPubSub(t *testing.T) {
 			fmt.Printf("sub:topic: %v, sub:value: %v\n", topic, value)
 
 			// verify value is json
-			if (value[0] != '{' && value[0] != '[' && value[0] != '"') {
+			if value[0] != '{' && value[0] != '[' && value[0] != '"' {
 				t.Fatalf("invalid value: %v", value)
 			}
 
-			if (len(topic) <= len(topicSpr)) {
+			if len(topic) <= len(topicSpr) {
 				t.Fatalf("invalid topic: %v, subscribe: %v", topic, topicSpr)
 			}
-			
+
 			gotMessages += 1
 			//wg.Done()
 		}
@@ -136,8 +136,8 @@ func TestPubSub(t *testing.T) {
 
 	// make sure we have time to receive the msg
 	time.Sleep(time.Second / 2)
-	
-	if (gotMessages != sendMessages) {
+
+	if gotMessages != sendMessages {
 		t.Fatalf("invalid num messages received: %v/%v", gotMessages, sendMessages)
 	}
 

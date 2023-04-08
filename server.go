@@ -32,6 +32,59 @@ func (p *PubsubService) Publish(ctx context.Context, arg *pb.String) (*pb.String
 	return &pb.String{}, nil
 }
 
+func extractTopicAndValueString(data string) (string, string) {
+
+	// get start of json message. object, array, string
+	index := strings.Index(data, "{")
+
+	if index < 0 {
+		index = strings.Index(data, "[")
+	}
+
+	if index < 0 {
+		index = strings.Index(data, "\"")
+	}
+
+	topic := ""
+	value := data
+
+	// if not json object, just index at whatever topic is subscribed to
+	if index > 0 {
+		topic = data[:index-1]
+		value = data[index:]
+	}
+
+	return topic, value
+}
+
+func extractTopicAndValue(arg *pb.String, data string) (string, string) {
+
+	// get start of json message. object, array, string
+	index := strings.Index(data, "{")
+
+	if index < 0 {
+		index = strings.Index(data, "[")
+	}
+
+	if index < 0 {
+		index = strings.Index(data, "\"")
+	}
+
+	var topic string
+	var value string
+
+	// if not json object, just index at whatever topic is subscribed to
+	if index <= 0 {
+		topic = arg.GetTopic()
+		value = strings.TrimPrefix(data, topic+":")
+	} else {
+		topic = data[:index-1]
+		value = data[index:]
+	}
+
+	return topic, value
+}
+
 func (p *PubsubService) SubscribeTopic(arg *pb.String, stream pb.PubsubService_SubscribeTopicServer) error {
 	ch := p.pub.SubscribeTopic(func(v interface{}) bool {
 		if key, ok := v.(string); ok {
@@ -43,29 +96,7 @@ func (p *PubsubService) SubscribeTopic(arg *pb.String, stream pb.PubsubService_S
 	})
 
 	for v := range ch {
-		// get start of json message. object, array, string
-		index := strings.Index(v.(string), "{")
-		
-		if index < 0 {
-			index = strings.Index(v.(string), "[")
-		}
-
-		if index < 0 {
-			index = strings.Index(v.(string), "\"")
-		}
-
-		var topic string
-		var value string
-
-		// if not json object, just index at whatever topic is subscribed to
-		if index <= 0 {
-			topic = arg.GetTopic()
-			value = strings.TrimPrefix(v.(string), topic+":")
-		} else {
-			topic = v.(string)[:index-1]
-			value = v.(string)[index:]
-		}
-
+		topic, value := extractTopicAndValue(arg, v.(string))
 		if err := stream.Send(&pb.String{Topic: topic, Value: value}); nil != err {
 			return err
 		}
