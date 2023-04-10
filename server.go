@@ -32,31 +32,6 @@ func (p *PubsubService) Publish(ctx context.Context, arg *pb.String) (*pb.String
 	return &pb.String{}, nil
 }
 
-func extractTopicAndValueString(data string) (string, string) {
-
-	// get start of json message. object, array, string
-	index := strings.Index(data, "{")
-
-	if index < 0 {
-		index = strings.Index(data, "[")
-	}
-
-	if index < 0 {
-		index = strings.Index(data, "\"")
-	}
-
-	topic := ""
-	value := data
-
-	// if not json object, just index at whatever topic is subscribed to
-	if index > 0 {
-		topic = data[:index-1]
-		value = data[index:]
-	}
-
-	return topic, value
-}
-
 func extractTopicAndValue(arg *pb.String, data string) (string, string) {
 
 	// get start of json message. object, array, string
