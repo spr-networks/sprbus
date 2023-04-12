@@ -18,9 +18,9 @@ cd cmd/; make
 ./sprbus --help
 ```
 
-**www logs**
+**www and api logs**
 ```sh
-./sprbus -t www
+./sprbus -t log
 ```
 
 **device and wifi events**
