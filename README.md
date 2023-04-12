@@ -1,6 +1,7 @@
 # sprbus
 
 ![version](https://img.shields.io/github/v/tag/spr-networks/sprbus?sort=semver&label=version)
+[![Go Report Card](https://goreportcard.com/badge/github.com/spr-networks/sprbus)](https://goreportcard.com/report/github.com/spr-networks/sprbus)
 
 
 This is [moby pubsub](https://github.com/moby/pubsub) with support for unix sockets and grpc
