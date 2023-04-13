@@ -5,15 +5,11 @@
 
 This is [moby pubsub](https://github.com/moby/pubsub) with support for unix sockets and grpc
 
+## Command line tools
+
 ![sprbus intro](https://user-images.githubusercontent.com/37542945/231619971-96b18ec8-36a9-4e36-bf37-0b0f1e982c7d.gif)
 
-# Usage
-
-see example/main.go
-
-## command line tools
-
-see cmd/main.go
+See [cmd/main.go](https://github.com/spr-networks/sprbus/blob/main/cmd/main.go)
 
 ```sh
 cd cmd/; make
@@ -45,7 +41,9 @@ cd cmd/; make
 ./sprbus -t test:event -p '{"msg": "testevent1234"}'
 ```
 
-# Example code
+# Usage
+
+See [example/main.go](https://github.com/spr-networks/sprbus/blob/main/example/main.go)
 
 using default sprbus:
 ```golang
@@ -61,7 +59,9 @@ go sprbus.HandleEvent("wifi", func (topic string, json string) {
 })
 ```
 
-using a custom unix socket server and client:
+## Custom unix socket server and client
+
+See [example/main.go](https://github.com/spr-networks/sprbus/blob/main/example/main.go)
 
 ```go
 package main
