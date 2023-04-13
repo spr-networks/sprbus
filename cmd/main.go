@@ -18,9 +18,7 @@ import (
 	"time"
 )
 
-//var client *sprbus.Client
-//var socket = "/tmp/test.sock"
-var socket = "/home/spr/super/state/api/eventbus.sock"
+var socket = "/state/api/eventbus.sock"
 
 func checkAccess(fileName string) error {
 	fileInfo, err := os.Stat(fileName)
