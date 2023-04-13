@@ -3,8 +3,9 @@
 ![version](https://img.shields.io/github/v/tag/spr-networks/sprbus?sort=semver&label=version)
 [![Go Report Card](https://goreportcard.com/badge/github.com/spr-networks/sprbus)](https://goreportcard.com/report/github.com/spr-networks/sprbus)
 
-
 This is [moby pubsub](https://github.com/moby/pubsub) with support for unix sockets and grpc
+
+![sprbus intro](https://user-images.githubusercontent.com/37542945/231619971-96b18ec8-36a9-4e36-bf37-0b0f1e982c7d.gif)
 
 # Usage
 
