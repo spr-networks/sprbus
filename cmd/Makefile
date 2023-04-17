@@ -1,2 +1,2 @@
 build:
-	go build -o sprbus main.go
+	go build -o sprbus
