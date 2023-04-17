@@ -17,7 +17,7 @@ func ConnectWebsocket(addr string, authString string, callback func(string, stri
 	signal.Notify(interrupt, os.Interrupt)
 
 	u := url.URL{Scheme: "ws", Host: addr, Path: "/ws"}
-	log.Printf("connecting to %s", u.String())
+	//log.Printf("connecting to %s", u.String())
 
 	c, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	if err != nil {
@@ -80,7 +80,7 @@ func ConnectWebsocket(addr string, authString string, callback func(string, stri
 			// waiting (with timeout) for the server to close the connection.
 			err := c.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
 			if err != nil {
-				log.Println("write close:", err)
+				//log.Println("write close:", err)
 				return
 			}
 			select {
