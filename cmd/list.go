@@ -198,8 +198,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, cmd
 
 		case msg.String() == "enter":
-			idx := m.list.Index()
-
 			//set viewport content
 			i := m.list.SelectedItem()
 			i2, ok := i.(item)
@@ -211,17 +209,17 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.viewport.SetContent(m.content)
 			}
 
-			cmd := m.list.NewStatusMessage(statusMessageStyle(fmt.Sprintf("select:", idx)))
+			//cmd := m.list.NewStatusMessage(statusMessageStyle(fmt.Sprintf("select:%v", idx)))
 
-			return m, cmd
+			return m, nil
 
 		case msg.String() == "q":
 			if m.title != "" {
 				m.title = ""
 				m.content = ""
-				cmd := m.list.NewStatusMessage(statusMessageStyle(fmt.Sprintf("close")))
+				//cmd := m.list.NewStatusMessage(statusMessageStyle(fmt.Sprintf("close")))
 
-				return m, cmd
+				return m, nil
 			} else {
 				return m, tea.Quit
 			}
