@@ -50,13 +50,12 @@ export TOKEN="SPR-API-TOKEN"
 
 **publish test event**
 
-example showing how to publish events:
-
-![sprbus intro](https://user-images.githubusercontent.com/37542945/231619971-96b18ec8-36a9-4e36-bf37-0b0f1e982c7d.gif)
-
 ```sh
 ./sprbus -t test:event -p '{"msg": "testevent1234"}'
 ```
+
+![sprbus intro](https://user-images.githubusercontent.com/37542945/231619971-96b18ec8-36a9-4e36-bf37-0b0f1e982c7d.gif)
+example showing how to publish events.
 
 # Development
 
@@ -77,7 +76,7 @@ go sprbus.HandleEvent("wifi", func (topic string, json string) {
 })
 ```
 
-## Custom unix socket server and client
+**Custom unix socket server and client**
 
 See [example/main.go](https://github.com/spr-networks/sprbus/blob/main/example/main.go) for code to setup a custom unix socket server and client
 
