@@ -15,6 +15,7 @@ how to share models? delegates vs. list
 */
 
 import (
+	"bufio"
 	b64 "encoding/base64"
 	"encoding/json"
 	"errors"
@@ -27,6 +28,7 @@ import (
 	"github.com/tidwall/gjson"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -161,8 +163,6 @@ type BusLogItem struct {
 }
 
 func preloadItems(fileName string) []list.Item {
-	maxNum := 1
-
 	var data []byte
 	var err error
 
@@ -170,32 +170,85 @@ func preloadItems(fileName string) []list.Item {
 		log.Fatal(err)
 	}
 
-	items := []list.Item{}
-
-	result := gjson.Parse(string(data))
-	for i, event := range result.Array() {
-		title := gjson.Get(event.String(), "Topic").String()
-		json := gjson.Get(event.String(), "Value").String()
+	parseLine := func(event string) item {
+		title := gjson.Get(event, "Topic").String()
+		json := gjson.Get(event, "Value").String()
 		description := ParseDesc(title, json)
 
-		v := item{title: title, description: description, json: json}
-		items = append(items, v)
+		return item{title: title, description: description, json: json}
+	}
 
-		if i >= maxNum {
-			break
+	items := []list.Item{}
+	// either array or json object on each line
+	// -o output is object/line & no array
+	if string(data)[0] == '{' {
+		//result := gjson.Get(string(data), "..")
+		gjson.ForEachLine(string(data), func(line gjson.Result) bool {
+			v := parseLine(line.String())
+			items = append(items, v)
+
+			return true
+		})
+	} else {
+		result := gjson.Parse(string(data))
+		for _, event := range result.Array() {
+			v := parseLine(event.String())
+			items = append(items, v)
 		}
 	}
 
 	return items
 }
 
-func initGUI() *tea.Program {
-	items := []list.Item{} //TODO preloadItems() if -filename
-
+func initGUI(items []list.Item) *tea.Program {
 	m := NewModel(items)
 	p := tea.NewProgram(m)
 
 	return p
+}
+
+// enable/disable forwarding of all events from eventbus to websocket
+func SetEventNotifications(api Api, enable bool) (string, error) {
+	body, err := api.Get("/notifications")
+	if err != nil {
+		return "", err
+	}
+
+	if enable {
+		gotEntry := gjson.Get(body, "#(Conditions.Prefix==\"\")#")
+		if len(gotEntry.Array()) > 0 {
+			fmt.Println("already have entry for sprbus, will be removed")
+			return body, nil
+		}
+
+		// Conditions.Prefix="", Notification=false
+		settingEntry := ConditionEntry{}
+		data, _ := json.Marshal(settingEntry)
+		body = string(data)
+
+		res, err := api.Put("/notifications", body)
+
+		return res, err
+	} else {
+		// find index for sprbus entry - TODO gjson method for this?
+		result := gjson.Parse(body)
+		keyIndex := int64(-1)
+		result.ForEach(func(key, value gjson.Result) bool {
+			if gjson.Get(value.String(), "Conditions.Prefix").String() == "" {
+				keyIndex, _ = strconv.ParseInt(key.String(), 10, 64)
+				return false
+			}
+
+			return true // keep iterating
+		})
+
+		if keyIndex < 0 {
+			return "", errors.New("sprbus event entry not found")
+		}
+
+		res, err := api.Delete(fmt.Sprintf("/notifications/%d", keyIndex), "")
+		return res, err
+	}
 }
 
 func main() {
@@ -208,10 +261,8 @@ func main() {
 	timeout := flag.Int("timeout", 20, "exit timeout")
 	verbose := flag.Bool("v", false, "verbose output")
 	noGUI := flag.Bool("nogui", false, "dont show gui, print to stdout")
-
-	//TODO add these
-	//fileNameIn := flag.String("f", "", "read sprbus json data from file")
-	//fileNameOut := flag.String("o", "", "write sprbus json data to file")
+	fileNameIn := flag.String("f", "", "read sprbus json data from file")
+	fileNameOut := flag.String("o", "", "write sprbus json data to file")
 
 	flag.Parse()
 
@@ -226,7 +277,20 @@ func main() {
 		*noGUI = true
 	}
 
-	if !isRemote {
+	if isRemote {
+		token := os.Getenv("TOKEN")
+		if token == "" {
+			log.Fatal("missing token")
+		}
+
+		api := NewApi("192.168.2.1", token)
+
+		// 0. get notification settings
+		// 1. set: filter out entries with empty prefix, append {Notification: false}
+		// 2. on exit, set: notification settings from 0
+		SetEventNotifications(api, true)
+		defer SetEventNotifications(api, false)
+	} else {
 		if err := checkAccess(socket, *publish != ""); err != nil {
 			fmt.Println(fgYellow("NOTE"), err)
 		}
@@ -255,23 +319,48 @@ func main() {
 	var p *tea.Program
 
 	if !*noGUI {
-		p = initGUI()
+		items := []list.Item{}
+		if *fileNameIn != "" {
+			items = preloadItems(*fileNameIn)
+		}
+
+		p = initGUI(items)
+	}
+
+	var fileWriter *bufio.Writer
+
+	if *fileNameOut != "" {
+		f, err := os.Create(*fileNameOut)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer f.Close()
+
+		fileWriter = bufio.NewWriter(f)
 	}
 
 	// we get same data from either sprbus or websocket here
 	retSub := func(title string, json string) {
 		description := ParseDesc(title, json)
 
-		//send to view
+		lineJSON := fmt.Sprintf("{\"Topic\": \"%s\", \"Value\": %s}\n", title, json)
+
+		if fileWriter != nil {
+			fileWriter.WriteString(lineJSON)
+			fileWriter.Flush()
+		}
+
+		line := ""
+
 		if *noGUI {
 			if *dumpJSON {
-				fmt.Printf("{\"Topic\": \"%s\", \"Value\": %s}\n", title, json)
-
-				return
+				line = lineJSON
+			} else {
+				//else just print to stdout
+				line = fmt.Sprintf("%v %v\n", fgCyan(title), description)
 			}
 
-			//else just print to stdout
-			fmt.Printf("%v %v\n", fgCyan(title), description)
+			fmt.Println(line)
 
 			return
 		}
