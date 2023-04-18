@@ -9,7 +9,7 @@ This package is a pubsub service using [moby pubsub](https://github.com/moby/pub
 
 The client code in `cmd/` can be used to connect to a remote spr api using websockets, or a local unix socket.
 
-![sprbus intro](https://user-images.githubusercontent.com/37542945/231619971-96b18ec8-36a9-4e36-bf37-0b0f1e982c7d.gif)
+![sprbus](https://user-images.githubusercontent.com/37542945/232639810-7e17380c-42ea-480b-811e-cf5add04a0d2.gif)
 
 See [cmd/main.go](https://github.com/spr-networks/sprbus/blob/main/cmd/main.go)
 
@@ -50,6 +50,10 @@ export TOKEN="SPR-API-TOKEN"
 
 **publish test event**
 
+example showing how to publish events:
+
+![sprbus intro](https://user-images.githubusercontent.com/37542945/231619971-96b18ec8-36a9-4e36-bf37-0b0f1e982c7d.gif)
+
 ```sh
 ./sprbus -t test:event -p '{"msg": "testevent1234"}'
 ```
@@ -79,7 +83,7 @@ See [example/main.go](https://github.com/spr-networks/sprbus/blob/main/example/m
 
 # TODO
 
-use this i go.mod:
+For local dev use this i go.mod:
 
 ```
 replace github.com/spr-networks/super/pkg/sprbus v0.0.1 => ../../pkg/sprbus
@@ -88,7 +92,7 @@ replace github.com/spr-networks/super/pkg/sprbus v0.0.1 => ../../pkg/sprbus
 will have to solve build in docker, copy / link libs
 but this makes local dev easier
 
-## cli
+## Client
 
 - for now publish only works for local connections
 - temp enable \* notifications:
@@ -97,4 +101,4 @@ but this makes local dev easier
 
 ### Thank you
 
-The command line tool is built using [https://github.com/charmbracelet/bubbletea](BubbleTea), an awesome TUI Framework.
+The command line tool is built using [BubbleTea](https://github.com/charmbracelet/bubbletea), an awesome TUI Framework.
