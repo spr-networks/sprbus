@@ -82,21 +82,8 @@ See [example/main.go](https://github.com/spr-networks/sprbus/blob/main/example/m
 
 # TODO
 
-For local dev use this i go.mod:
-
-```
-replace github.com/spr-networks/super/pkg/sprbus v0.0.1 => ../../pkg/sprbus
-```
-
-will have to solve build in docker, copy / link libs
-but this makes local dev easier
-
-## Client
-
+**client**
 - for now publish only works for local connections
-- temp enable \* notifications:
-  - send request to /notifications with `prefix:"", Notifications: False`
-  - disable when we're done to not send excessive data over ws.
 
 ### Thank you
 
