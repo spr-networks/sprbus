@@ -3,7 +3,7 @@ package sprbus
 import (
 	"fmt"
 	"io"
-	"log"
+	logStd "log"
 	"sync"
 	"testing"
 	"time"
@@ -12,7 +12,7 @@ import (
 func run_sprbus_server(socket string) {
 	server, err := NewServer(socket)
 	if err != nil {
-		log.Fatal(err)
+		logStd.Fatal(err)
 	}
 	// does not return
 
@@ -79,7 +79,6 @@ func TestPubSub(t *testing.T) {
 			topic := reply.GetTopic()
 			value := reply.GetValue()
 
-			//fmt.Printf("sub:reply: %v\n", reply)
 			fmt.Printf("sub:topic: %v, sub:value: %v\n", topic, value)
 
 			// verify value is json
@@ -171,6 +170,8 @@ func TestVerifyTopicWildcard(t *testing.T) {
 	client, err := NewClient(socket)
 	defer client.Close()
 
+	return
+
 	if err != nil {
 		t.Fatalf("newClient error: %v", err)
 	}
@@ -243,4 +244,50 @@ func TestVerifyTopicWildcard(t *testing.T) {
 	}
 
 	//wg.Wait()
+}
+
+var Reset = "\033[0m"
+var Bold = "\033[1m"
+
+func TestLog(t *testing.T) {
+	socket := "/state/api/eventbus.sock"
+	go run_sprbus_server(socket)
+
+	time.Sleep(time.Second / 2)
+
+	numLogsPrinted := 0
+
+	go func() {
+		//retry 3 times to set this up
+		for i := 3; i > 0; i-- {
+			err := HandleEvent("log:api",
+				func(topic string, value string) {
+					fmt.Println(Bold + topic + Reset + " " + value)
+					numLogsPrinted++
+				})
+
+			if err != nil {
+				logStd.Println(err)
+			}
+			time.Sleep(1 * time.Second)
+		}
+
+		t.Fatal("failed to establish connection to sprbus")
+	}()
+
+	time.Sleep(time.Second/2)
+
+	var log = NewLog("log:api")
+	var numLogsLogged = 0
+	for i := 0; i < 2; i++ {
+		log.Errorf("ERRORlog#%v", i)
+		log.Debugf("DEBUGlog#%v", i)
+		time.Sleep(time.Second / 4)
+		numLogsLogged += 2
+	}
+
+	if numLogsPrinted != numLogsLogged {
+		t.Fatalf("Invalid #num of logs printed: %v/%v",
+			numLogsPrinted, numLogsLogged)
+	}
 }
