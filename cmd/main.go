@@ -101,8 +101,11 @@ func ParseDesc(topic string, json string) string {
 	} else if topic == "dns:block:event" {
 		desc = fmt.Sprintf("%v %v", gjson.Get(json, "ClientIP").String(),
 			gjson.Get(json, "Name"))
-	} else if topic == "dns:serve:event" {
-		desc = fmt.Sprintf("%v %v", gjson.Get(json, "Type").String(),
+	} else if strings.HasPrefix(topic, "dns:serve") {
+		clientIP := strings.Split(gjson.Get(json, "Remote").String(), ":")[0]
+
+		desc = fmt.Sprintf("%v %v %v", gjson.Get(json, "Type").String(),
+			clientIP,
 			gjson.Get(json, "Q.0.Name"))
 	} else if strings.HasPrefix(topic, "nft") {
 		if gjson.Get(json, "DNS.Questions").Exists() {
