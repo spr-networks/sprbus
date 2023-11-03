@@ -80,11 +80,6 @@ go sprbus.HandleEvent("wifi", func (topic string, json string) {
 
 See [example/main.go](https://github.com/spr-networks/sprbus/blob/main/example/main.go) for code to setup a custom unix socket server and client
 
-# TODO
-
-**client**
-- for now publish only works for local connections
-
 ### Thank you
 
 The command line tool is built using [BubbleTea](https://github.com/charmbracelet/bubbletea), an awesome TUI Framework.
