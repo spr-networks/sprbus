@@ -28,7 +28,6 @@ import (
 	"github.com/tidwall/gjson"
 	"log"
 	"os"
-	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -146,9 +145,9 @@ func filterSub(filter string, exclude string, callback func(string, string)) {
 }
 
 func filterWS(addr string, filter string, exclude string, callback func(string, string)) {
-	authString := os.Getenv("TOKEN")
+	authString := os.Getenv("SPR_API_TOKEN")
 	if authString == "" {
-		log.Fatal("missing TOKEN in environment")
+		log.Fatal("missing SPR_API_TOKEN in environment")
 	}
 
 	go ConnectWebsocket(addr, authString, func(topic string, json string) {
@@ -234,12 +233,10 @@ func main() {
 	}
 
 	if isRemote {
-		token := os.Getenv("TOKEN")
+		token := os.Getenv("SPR_API_TOKEN")
 		if token == "" {
-			log.Fatal("missing token")
+			log.Fatal("missing SPR_API_TOKEN")
 		}
-
-		api := NewApi(addr, token)
 	} else {
 		if err := checkAccess(socket, *publish != ""); err != nil {
 			fmt.Println(fgYellow("NOTE"), err)
