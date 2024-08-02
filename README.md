@@ -21,7 +21,7 @@ cd cmd/; make
 **remote**
 
 ```sh
-export TOKEN="SPR-API-TOKEN"
+export SPR_API_TOKEN="SPR-API-TOKEN"
 ./sprbus --addr 192.168.2.1
 ```
 

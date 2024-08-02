@@ -275,7 +275,7 @@ func TestLog(t *testing.T) {
 		t.Fatal("failed to establish connection to sprbus")
 	}()
 
-	time.Sleep(time.Second/2)
+	time.Sleep(time.Second / 2)
 
 	var log = NewLog("log:api")
 	var numLogsLogged = 0

@@ -28,7 +28,6 @@ import (
 	"github.com/tidwall/gjson"
 	"log"
 	"os"
-	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -146,9 +145,9 @@ func filterSub(filter string, exclude string, callback func(string, string)) {
 }
 
 func filterWS(addr string, filter string, exclude string, callback func(string, string)) {
-	authString := os.Getenv("TOKEN")
+	authString := os.Getenv("SPR_API_TOKEN")
 	if authString == "" {
-		log.Fatal("missing TOKEN in environment")
+		log.Fatal("missing SPR_API_TOKEN in environment")
 	}
 
 	go ConnectWebsocket(addr, authString, func(topic string, json string) {
@@ -207,53 +206,9 @@ func initGUI(items []list.Item) *tea.Program {
 	return p
 }
 
-// enable/disable forwarding of all events from eventbus to websocket
-func SetEventNotifications(api Api, enable bool) (string, error) {
-	body, err := api.Get("/notifications")
-	if err != nil {
-		return "", err
-	}
-
-	if enable {
-		gotEntry := gjson.Get(body, "#(Conditions.Prefix==\"\")#")
-		if len(gotEntry.Array()) > 0 {
-			fmt.Println("already have entry for sprbus, will be removed")
-			return body, nil
-		}
-
-		// Conditions.Prefix="", Notification=false
-		settingEntry := ConditionEntry{}
-		data, _ := json.Marshal(settingEntry)
-		body = string(data)
-
-		res, err := api.Put("/notifications", body)
-
-		return res, err
-	} else {
-		// find index for sprbus entry - TODO gjson method for this?
-		result := gjson.Parse(body)
-		keyIndex := int64(-1)
-		result.ForEach(func(key, value gjson.Result) bool {
-			if gjson.Get(value.String(), "Conditions.Prefix").String() == "" {
-				keyIndex, _ = strconv.ParseInt(key.String(), 10, 64)
-				return false
-			}
-
-			return true // keep iterating
-		})
-
-		if keyIndex < 0 {
-			return "", errors.New("sprbus event entry not found")
-		}
-
-		res, err := api.Delete(fmt.Sprintf("/notifications/%d", keyIndex), "")
-		return res, err
-	}
-}
-
 func main() {
 	help := flag.Bool("help", false, "show help")
-	addr := flag.String("addr", "", "http service address, example: 192.168.2.1:80")
+	addr := flag.String("addr", "192.168.2.1", "http service address, example: 192.168.2.1:80")
 	dumpJSON := flag.Bool("j", false, "show json output")
 	topic := flag.String("t", "", "topic(s) to filter. Example www:log,wifi:auth")
 	exclude := flag.String("e", "nft:lan:in", "exclude topic(s). Example nft:lan:in,nft:wan:out")
@@ -278,18 +233,10 @@ func main() {
 	}
 
 	if isRemote {
-		token := os.Getenv("TOKEN")
+		token := os.Getenv("SPR_API_TOKEN")
 		if token == "" {
-			log.Fatal("missing token")
+			log.Fatal("missing SPR_API_TOKEN")
 		}
-
-		api := NewApi("192.168.2.1", token)
-
-		// 0. get notification settings
-		// 1. set: filter out entries with empty prefix, append {Notification: false}
-		// 2. on exit, set: notification settings from 0
-		SetEventNotifications(api, true)
-		defer SetEventNotifications(api, false)
 	} else {
 		if err := checkAccess(socket, *publish != ""); err != nil {
 			fmt.Println(fgYellow("NOTE"), err)
