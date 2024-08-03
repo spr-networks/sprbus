@@ -17,11 +17,22 @@ type Client struct {
 	service pb.PubsubServiceClient
 }
 
+var gClient *Client
+
+func getClient() (*Client, error) {
+	if gClient.path == "" {
+		client, err := NewClient(ServerEventSock)
+		if err != nil {
+			return nil, err
+		}
+		gClient = client
+	}
+	return gClient, nil
+}
+
 // sprbus.PublishString() using default socket
 func PublishString(topic string, value string) (*pb.String, error) {
-	client, err := NewClient(ServerEventSock)
-	defer client.Close()
-
+	client, err := getClient()
 	if err != nil {
 		return nil, err
 	}
@@ -41,8 +52,7 @@ func Publish(topic string, bytes interface{}) (*pb.String, error) {
 }
 
 func HandleEvent(topic string, callback func(string, string)) error {
-	client, err := NewClient(ServerEventSock)
-	defer client.Close()
+	client, err := getClient()
 
 	if nil != err {
 		return err
