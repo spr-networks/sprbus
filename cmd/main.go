@@ -208,7 +208,7 @@ func initGUI(items []list.Item) *tea.Program {
 
 func main() {
 	help := flag.Bool("help", false, "show help")
-	addr := flag.String("addr", "192.168.2.1", "http service address, example: 192.168.2.1:80")
+	addr := flag.String("addr", "", "http service address, example: 192.168.2.1:80")
 	dumpJSON := flag.Bool("j", false, "show json output")
 	topic := flag.String("t", "", "topic(s) to filter. Example www:log,wifi:auth")
 	exclude := flag.String("e", "nft:lan:in", "exclude topic(s). Example nft:lan:in,nft:wan:out")
