@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	logStd "log"
+	"os"
 	"sync"
 	"testing"
 	"time"
@@ -250,7 +251,7 @@ var Reset = "\033[0m"
 var Bold = "\033[1m"
 
 func TestLog(t *testing.T) {
-	socket := "/state/api/eventbus.sock"
+	socket := os.Getenv("TEST_PREFIX") + "/state/api/eventbus.sock"
 	go run_sprbus_server(socket)
 
 	time.Sleep(time.Second / 2)

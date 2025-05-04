@@ -6,9 +6,10 @@ import (
 	pb "github.com/spr-networks/sprbus/pubservice"
 	"google.golang.org/grpc"
 	"io"
+	"os"
 )
 
-var ServerEventSock = "/state/api/eventbus.sock"
+var ServerEventSock = os.Getenv("TEST_PREFIX") + "/state/api/eventbus.sock"
 
 // Client - object capable of subscribing to a remote event bus
 type Client struct {

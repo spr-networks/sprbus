@@ -22,7 +22,7 @@ type Server struct {
 }
 
 type PubsubService struct {
-        pb.UnimplementedPubsubServiceServer
+	pb.UnimplementedPubsubServiceServer
 	pub *pubsub.Publisher
 }
 
