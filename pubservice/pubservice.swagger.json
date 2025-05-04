@@ -4,9 +4,10 @@
     "title": "pubservice.proto",
     "version": "version not set"
   },
-  "schemes": [
-    "http",
-    "https"
+  "tags": [
+    {
+      "name": "PubsubService"
+    }
   ],
   "consumes": [
     "application/json"
@@ -16,7 +17,16 @@
   ],
   "paths": {},
   "definitions": {
-    "String": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "pubserviceString": {
       "type": "object",
       "properties": {
         "topic": {
@@ -24,6 +34,25 @@
         },
         "value": {
           "type": "string"
+        }
+      }
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
         }
       }
     }
