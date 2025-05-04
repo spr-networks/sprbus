@@ -3,10 +3,11 @@ package main
 import (
 	"github.com/spr-networks/sprbus"
 	//"github.com/spr-networks/sprbus/log"
-	"github.com/sirupsen/logrus"
-	"log"
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"io"
+	"log"
+	"os"
 	"sync"
 	"time"
 )
@@ -14,7 +15,7 @@ import (
 var client *sprbus.Client
 
 // var socket = "/tmp/test.sock"
-var socket = "/state/api/eventbus.sock"
+var socket = os.Getenv("TEST_PREFIX") + "/state/api/eventbus.sock"
 
 func custom_subscribe(client *sprbus.Client) {
 	time.Sleep(time.Second / 4)
@@ -101,12 +102,12 @@ func spr_log() {
 }
 
 func main() {
-		
+
 	go custom_server()
-	time.Sleep(time.Second/2)
+	time.Sleep(time.Second / 2)
 	go spr_event()
-	time.Sleep(time.Second/2)
-	
+	time.Sleep(time.Second / 2)
+
 	client, err := sprbus.NewClient(socket)
 	defer client.Close()
 
@@ -120,5 +121,5 @@ func main() {
 
 	spr_log()
 
-	time.Sleep(time.Second*5)
+	time.Sleep(time.Second * 5)
 }

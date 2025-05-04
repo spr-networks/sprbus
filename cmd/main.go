@@ -34,7 +34,7 @@ import (
 )
 
 var (
-	socket   = "/state/api/eventbus.sock"
+	socket   = os.Getenv("TEST_PREFIX") + "/state/api/eventbus.sock"
 	fgYellow = lipgloss.NewStyle().Foreground(lipgloss.Color("3")).Render
 	fgCyan   = lipgloss.NewStyle().Foreground(lipgloss.Color("6")).Render
 )
