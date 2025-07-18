@@ -2,7 +2,7 @@ package sprbus
 
 import (
 	"context"
-	"github.com/moby/moby/pkg/pubsub"
+	"github.com/moby/pubsub"
 	pb "github.com/spr-networks/sprbus/pubservice"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
